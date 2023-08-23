@@ -1,0 +1,173 @@
+<div class="content-wrapper container-xxl p-0">
+  <div class="content-body">
+    <!-- content-header component -->
+    <app-content-header [contentHeader]="contentHeader"></app-content-header>
+
+    <!-- Basic Alerts start -->
+    <section id="home-page">
+      <div class="row">
+        <div class="col-12">
+          <div style="padding-bottom: 10px;">
+            
+          <h4>Selecione um Evento:</h4>
+          <select class="form-control" style="width: 50%;" (change)="onSelecaoChange($event)">
+            <option [value]="">
+              -
+            </option>
+            <option *ngFor="let evento of events" [value]="evento.name">
+              {{ evento.name }}
+            </option>
+          </select>
+
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Event People 🚀</h4>
+              <div>
+                <a type="button" href="eventPeople/create" style="margin: 10px;">
+                  <span
+                    [ngClass]="'icon-plus-circle'"
+                    class="ficon font-medium-5 feather"
+                    title="Add EventPeople"
+                  ></span>
+                </a>
+                <button type="button" class="btn-icon btn btn-primary btn-round btn-sm" (click)="generateTemplate()" style="margin: 10px;">
+                  <span
+                  > Baixar Template</span>
+                </button>
+                <button type="button" class="btn-icon btn btn-primary btn-round btn-sm" (click)="importXLS()" style="margin: 10px;">
+                  <span
+                  > Importar via XLS</span>
+                </button>
+              </div>
+              
+            </div>
+            <div class="card-body pb-1">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Telephone Number</th>
+                    <th scope="col">Event</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container *ngFor="let eventPeople of eventPeople">
+                    <tr>
+                      <td>{{ eventPeople.name }}</td>
+                      <td>{{ eventPeople.email }}</td>
+                      <td>{{ eventPeople.telephoneNumber }}</td>
+                      <td>{{ eventPeople.event }}</td>
+                      <td>
+                        <ng-container *ngIf="eventPeople.checked">
+                          <span
+                            [ngClass]="'icon-check-circle'"
+                            class="ficon font-medium-5 feather"
+                            title="Confirmado"
+                          ></span>
+                        </ng-container>
+                        <ng-container *ngIf="!eventPeople.checked">
+                          <span
+                            [ngClass]="'icon-x'"
+                            class="ficon font-medium-5 feather"
+                            title="Não confirmado"
+                          ></span>
+                        </ng-container>
+                      </td>
+                      <td>                        
+                        <a [ngClass]="'icon-info'" class="ficon font-medium-5 feather" title="Details" (click)="abrirModal(eventPeople)"></a>
+                        <a
+                          type="button"
+                          href="eventPeople/edit/{{ eventPeople._id }}"
+                        >
+                          <span
+                            [ngClass]="'icon-edit-2'"
+                            class="ficon font-medium-5 feather"
+                            title="Edit"
+                          ></span>
+                        </a>
+                        <a
+                          type="button"
+                          (click)="deleteEventPeople(eventPeople._id)"
+                        >
+                          <span
+                            [ngClass]="'icon-trash'"
+                            class="ficon font-medium-5 feather"
+                            title="Delete"
+                          ></span>
+                        </a>
+                        <a
+                          type="button"
+                          (click)="qrCode(eventPeople._id)"
+                        >
+                          <span
+                            [ngClass]="'icon-check'"
+                            class="ficon font-medium-5 feather"
+                            title="Confirmar presença"
+                          ></span>
+                        </a>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Basic Alerts end -->
+  </div>
+</div>
+
+
+<!-- modal.component.html -->
+<div class="modal" *ngIf="modalOn">
+  <div class="modal-content">
+    <h2>Importação de lista de participantes:</h2>
+    <input type="file" (change)="onFileSelected($event)">   
+    <button type="button" class="btn-icon btn btn-primary btn-round btn-sm" style="width: 20%; align-self: center;" (click)="upload()">
+      <span
+      > Upload</span>
+    </button>    
+    <button type="button" class="btn-icon btn btn-primary btn-round btn-sm" style="width: 20%; align-self: center;" (click)="closeModal()">
+      <span
+      > Fechar</span>
+    </button>
+  </div>
+</div>
+
+<!-- modal.component.html -->
+<div class="modal" *ngIf="modalDetailOn && detailEventPeople != undefined">
+  <div class="modal-content">
+    <h2>Detalhes participante {{detailEventPeople.name}}</h2>
+    <ul>
+      <li *ngFor="let prop of detailEventPeopleKeys" style="list-style: none;">
+        <ng-container *ngIf="prop != '_id' &&  prop != 'id'">
+          {{ prop }}: {{ detailEventPeople[prop] }}
+        </ng-container>
+      </li>
+    </ul>
+    <button type="button" class="btn-icon btn btn-primary btn-round btn-sm" style="width: 20%; align-self: center;" (click)="closeModal()">
+      <span
+      > Fechar</span>
+    </button>
+  </div>
+</div>
+
+<!-- modal.component.html -->
+<div class="modal" *ngIf="qrCodeDataUrl && qrCodeDataUrl != undefined">
+  <div class="modal-content">
+    <h2>QRCodeParticipante {{detailEventPeople.name}}</h2>
+    
+    <img [src]="qrCodeDataUrl" alt="QR Code">
+    <button type="button" class="btn-icon btn btn-primary btn-round btn-sm" style="width: 20%; align-self: center;" (click)="closeModal()">
+      <span
+      > Fechar</span>
+    </button>
+  </div>
+</div>
+
